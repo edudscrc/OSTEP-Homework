@@ -21,7 +21,7 @@ int main()
         printf("[PID %d] I am Child\n", (int) getpid());
 
         // This gives an error.
-        pid_t idk_pid = wait(NULL);
+        pid_t idk_pid = waitpid(-1, NULL, 0);
         if (idk_pid == -1)
         {
             fprintf(stderr, "[PID %d] Error on wait: %s\n", (int) getpid(), strerror(errno));
@@ -34,7 +34,8 @@ int main()
         // Parent Process
         printf("[PID %d] I am Parent\n", (int) getpid());
 
-        pid_t c_pid = wait(NULL);
+        pid_t c_pid = waitpid(pid, NULL, 0);
+        // pid_t c_pid = wait(NULL);
         if (c_pid == -1)
         {
             fprintf(stderr, "[PID %d] Error on wait: %s\n", (int) getpid(), strerror(errno));
