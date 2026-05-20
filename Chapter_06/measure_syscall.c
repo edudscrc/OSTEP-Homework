@@ -8,7 +8,7 @@
 #include <wait.h>
 #include <sys/syscall.h>
 
-#define NUM_ITER 1e7
+#define NUM_ITER 1e6
 
 int64_t get_total_nanoseconds(struct timespec ts) {
     return (int64_t)ts.tv_sec * 1000000000LL + (int64_t)ts.tv_nsec;
@@ -17,31 +17,21 @@ int64_t get_total_nanoseconds(struct timespec ts) {
 int main()
 {
     struct timespec start, end;
-    int64_t elapsed_time = 0;
+    int64_t elapsed_time_syscall;
 
+    clock_gettime(CLOCK_MONOTONIC, &start);
     for (int i = 0; i < NUM_ITER; ++i)
     {
-        clock_gettime(CLOCK_MONOTONIC, &start);
-    
-        // My Machine:
-        // read 0 bytes -> ~470 ns
-        // wait (without any child) -> ~360 ns
-        // calling SYS_gettid directly -> ~275 ns
-
-        // read(STDOUT_FILENO, "", 0);
+        read(STDOUT_FILENO, "", 0);
         // wait(NULL);
-        syscall(SYS_gettid);
-    
-        clock_gettime(CLOCK_MONOTONIC, &end);
-
-        elapsed_time += get_total_nanoseconds(end) - get_total_nanoseconds(start);
+        // syscall(SYS_gettid);
     }
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
-    printf("Elapsed time (all calls): %" PRId64 " nanoseconds\n", elapsed_time);
+    elapsed_time_syscall = get_total_nanoseconds(end) - get_total_nanoseconds(start);
+    elapsed_time_syscall /= NUM_ITER;
 
-    elapsed_time /= NUM_ITER;
-
-    printf("Elapsed time (avg - single syscall): %" PRId64 " nanoseconds\n", elapsed_time);
+    printf("Elapsed time (avg - single syscall): %" PRId64 " nanoseconds\n", elapsed_time_syscall);
 
     return 0;
 }
