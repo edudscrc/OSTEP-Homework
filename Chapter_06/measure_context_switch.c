@@ -90,7 +90,7 @@ int main()
         clock_gettime(CLOCK_MONOTONIC, &end);
 
         elapsed_time_syscall = get_total_nanoseconds(end) - get_total_nanoseconds(start);
-        elapsed_time_syscall /= NUM_ITER;
+        elapsed_time_syscall /= 2 * NUM_ITER;
 
         wait(NULL);
 
